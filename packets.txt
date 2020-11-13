@@ -1,0 +1,5 @@
+{"from": 2988739000, "to": 4294967295, "decoded": {"data": {"typ": "CLEAR_TEXT", "payload": "dGVzdGluZw==", "text": "testing"}}, "id": 3432054417, "rxSnr": 10.25, "hopLimit": 1, "fromId": null, "toId": "^all"}
+{"from": 2988739000, "to": 4294967295, "decoded": {"data": {"typ": "CLEAR_TEXT", "payload": "bGluZSAx", "text": "line 1"}}, "id": 3432054418, "rxSnr": 11.0, "hopLimit": 1, "fromId": null, "toId": "^all"}
+{"from": 2988739000, "to": 4294967295, "decoded": {"data": {"typ": "CLEAR_TEXT", "payload": "bGluZSAy", "text": "line 2"}}, "id": 3432054419, "rxSnr": 10.0, "hopLimit": 1, "fromId": null, "toId": "^all"}
+{"from": 2988739000, "to": 4294967295, "decoded": {"data": {"typ": "CLEAR_TEXT", "payload": "ampka2Q=", "text": "jjdkd"}}, "id": 3432054420, "rxSnr": 10.5, "hopLimit": 1, "fromId": null, "toId": "^all"}
+{"from": 2988739000, "to": 3520889632, "decoded": {"user": {"id": "!ac67b22489b8", "longName": "T2", "shortName": "T2", "macaddr": "rGeyJIm4"}}, "id": 1284570796, "rxSnr": 12.25, "hopLimit": 3, "fromId": null, "toId": "!f008d1dc8320"}
