@@ -1,0 +1,11 @@
+2020-11-23 18:18:42,543|Recorder|INFO|---- Start of Log ----
+2020-11-23 18:18:42,543|Recorder|INFO|Logging to: C:\projects\Dropbox\code\meshcontrol\MeshRecorder.log
+2020-11-23 18:18:42,543|Recorder|INFO|----------------------
+2020-11-23 18:18:42,544|Recorder|INFO| Log Version: 0.1.0.5
+2020-11-23 18:18:42,544|Recorder|INFO| Source: c:\projects\Dropbox\code\meshcontrol\meshrecorder.py
+2020-11-23 18:18:42,545|Recorder|INFO|----------------------
+2020-11-23 18:18:42,545|Recorder|DEBUG| Test Debug Level
+2020-11-23 18:18:42,546|Recorder|INFO| Test Info Level
+2020-11-23 18:18:42,546|Recorder|WARNING| Test Warning Level - You have been warned
+2020-11-23 18:18:42,546|Recorder|INFO|----------------------
+2020-11-23 18:18:42,547|Recorder|INFO|Starting Meshtasic recorder
