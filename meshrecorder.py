@@ -47,11 +47,22 @@ logging.WARNING
 logging.ERROR
 logging.CRITICAL
 """
-logfile_dir = '' #set to '' to log in current working dir
+file_prefix_ts_fmt = "%Y%m%d_%H%M%S%f"
+logfile_dir = os.path.join(os.getcwd(),'logs')  # set to '' to log in current working dir
 logfile_name = 'MeshRecorder.log'
 logger_name = 'Recorder'
 loglevel = logging.DEBUG
 fmt_str = '%(asctime)s|%(name)s|%(levelname)s|%(message)s'
+
+#setup the run time stamp
+FILETIMESTAMP: str = datetime.datetime.now().strftime(file_prefix_ts_fmt)
+
+#Add timestamp to the log files names
+logfile_name = FILETIMESTAMP + '_' + logfile_name
+
+#create the log file directory
+if os.path.isdir(logfile_dir) == False:
+    os.makedirs(logfile_dir)
 
 # log file
 if logfile_dir != '' and os.path.isdir(logfile_dir):
@@ -76,7 +87,7 @@ if not log.handlers:
     # first handle - Streaming to the console
     consolhandle = logging.StreamHandler()
     consolhandle.setFormatter(formatter)
-    consolhandle.setLevel(loglevel)
+    consolhandle.setLevel(logging.INFO)
     log.addHandler(consolhandle)
 
     # second handle - for full log file
@@ -163,17 +174,26 @@ def getpt(pkt: dict, latstr: str = 'latitude', lonstr: str = 'longitude', altstr
     return pt
 
 def timestamp(fmtstr: str = f"%Y-%m-%dT%H:%M:%S.%f"):
-    tobj = time.now()
+    tobj = datetime.datetime.now()
     return tobj.strftime(fmtstr)
 
 def sortandlog(packet:dict, 
                packetsfname:str = 'packets.json',
                msgfname: str = 'messages.json',
                userfname: str = 'user.json',
-               posfname: str = 'position.json'):
+               posfname: str = 'position.json',
+               unqiuelog = True):
     
     #init
     hasalt = False
+    
+    #add time stamps to the log file name
+    if unqiuelog:
+        packetsfname = os.path.join(logfile_dir, FILETIMESTAMP + '_' + packetsfname)
+        msgfname = os.path.join(logfile_dir, FILETIMESTAMP + '_' + msgfname)
+        userfname = os.path.join(logfile_dir, FILETIMESTAMP + '_' + userfname)
+        posfname = os.path.join(logfile_dir, FILETIMESTAMP + '_' + posfname)
+        
     
     log.debug(f"Received Raw: \n{json.dumps(packet, indent=2)}\n")
     #todo add write to file or SQS here
@@ -228,17 +248,17 @@ def sortandlog(packet:dict,
                 packet["altitude"] = pos.pop("altitude")
                 hasalt = True
             except:
-                print("Packet has no altitude data")
+                log.warning("Packet has no altitude data")
                 
             try:
                 packet["batteryLevel"] = pos.pop("batteryLevel")
             except:
-                print("Packet has no battery level data")
+                log.warning("Packet has no battery level data")
     
             try:
                 packet["time"] = pos.pop("time")
             except:
-                print("Packet has no time data")
+                log.warning("Packet has no time data")
     
             #The packet has to have these parameters
             packet["latitude"] = pos.pop("latitude")
@@ -257,32 +277,35 @@ def sortandlog(packet:dict,
                 fp.write(str(geojson.Feature(geometry=pt, properties=packet))+'\n')
         
         else:
-            print(f"Postition packet is incomplete not writting to file:\n{json.dumps(packet)}\n\n")
+            log.warning(f"Postition packet is incomplete not writting to file:\n{json.dumps(packet)}\n\n")
 
     else:
-        print('This is an undefined packet')
+        log.warning('This is an undefined packet')
     
     
 
 def onReceive(packet, interface):  # called when a packet arrives
     # print(f"Received: \n{json.dumps(packet, indent=2)}")
-    packet['loggedtime']=timestamp()
+    packet['timelogged']=timestamp()
     sortandlog(packet= packet)
 
 
 # called when we (re)connect to the radio
 def onConnection(interface, topic=pub.AUTO_TOPIC):
-    # defaults to broadcast, specify a destination ID if you wish
-    # interface.sendText("hello mesh")
-    now = datetime.datetime.now()
-    nowstr = now.strftime("%m/%d/%Y, %H:%M:%S")
+    # defaults to broadcast to all, specify a destination ID if you wish
+    # # interface.sendText("hello mesh")
+    # now = datetime.datetime.now()
+    # nowstr = now.strftime("%m/%d/%Y, %H:%M:%S")
     
-    # interface.sendText(f"{nowstr}|Connecting to mesh!")
-    interface.sendText(nowstr+"|Connecting to mesh!")
-    # interface.sendText("Lily Go Go, Check for receipt.",
-    #                    destinationId='2988739000')
-    # interface.sendText('Delivery Type Testing',
-    #                    destinationId=2988739000)
+    # # interface.sendText(f"{nowstr}|Connecting to mesh!")
+    # interface.sendText(nowstr+"|Connecting to mesh!")
+    # # interface.sendText("Lily Go Go, Check for receipt.",
+    # #                    destinationId='2988739000')
+    # # interface.sendText('Delivery Type Testing',
+    # #                    destinationId=2988739000)
+    msg = f"{timestamp()}|Connecting to mesh!"
+    log.info(msg)
+    interface.sendText(msg)
 
 
 if __name__ == "__main__":
@@ -292,8 +315,8 @@ if __name__ == "__main__":
 
     # By default will try to find a meshtastic device, otherwise provide a device path like /dev/ttyUSB0
     interface = meshtastic.SerialInterface(connectNow=False)
-    interface.setOwner("Master Control Program",
-                    short_name='MCP')
+    interface.setOwner("Logger",
+                    short_name='L')
     interface.connect()
     # interface.sendText(f"The current time is: {datetime.datetime.now()}")
 

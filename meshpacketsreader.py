@@ -67,45 +67,52 @@ def makegeojson(infile: str, outext: str = '.geojson', deleteinput: bool = True)
 
     return outfile
 
-if __name__=='__main__':
-    
-
-    
-    # infile = '20201118_packets.json'
-    infile = 'packets.txt'
+def postprocessfiles(packetsfilename:str)->str:
 
     tsfmtstr = f"%Y%m%d_%H%M%S%f"
     nowobj = datetime.datetime.now()
     ts = nowobj.strftime(tsfmtstr)
     # ts = meshrecorder.timestamp
 
-    out_packet = ts + '_packets.txt'
-    out_msg = ts + '_messages.txt'
-    out_pos = ts + '_position.txt'
-    out_user = ts + '_user.json'
+    outdir = os.path.split(packetsfilename)[0]
+    out_packet = os.path.join(outdir, ts + '_postprocess_packets.txt')
+    out_msg = os.path.join(outdir, ts + '_postprocess_messages.txt')
+    out_pos=os.path.join(outdir, ts + '_postprocess_position.txt')
+    out_user = os.path.join(outdir, ts + '_postprocess_user.json')
 
     #Read in all the packets form the raw file
-    #Note, this assumes they are dictionaries 
+    #Note, this assumes they are dictionaries
     # written out as one line per packet
-    with open(infile, "r") as fp:
+    with open(packetsfilename, "r") as fp:
         linedict = fp.readlines()
 
     #Sort each line and write it to a file
     for l in linedict:
-        
+
         packet_dict = json.loads(l)
-        
+
         meshrecorder.sortandlog(packet=packet_dict,
-                                packetsfname= out_packet,
-                                msgfname= out_msg,
-                                userfname= out_user,
-                                posfname= out_pos)        
+                                packetsfname=out_packet,
+                                msgfname=out_msg,
+                                userfname=out_user,
+                                posfname=out_pos,
+                                unqiuelog=False)
 
     #open the files created and make them into actual compliant files
-    out_packet = makejson(infile=out_packet)
-    out_msg = makejson(infile= out_msg)
+    out_packet = makejson(infile=out_packet, deleteinput=False)
+    out_msg = makejson(infile=out_msg, deleteinput=False)
     # out_user = makejson(infile= out_user)
+    out_pos = makegeojson(infile=out_pos)
     
-    out_pos = makegeojson(infile= out_pos)        
+
+if __name__=='__main__':
+    
+
+    #All the packets received during a session
+    infile = r'C:\projects\Dropbox\code\meshcontrol\logs\20201124_192950010877_packets.json'
+
+    #Work through the file of packets and parse them out
+    postprocessfiles(packetsfilename=infile)
+    
 
     print("==== Thats All Folks ====")

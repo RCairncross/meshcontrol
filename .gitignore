@@ -1,2 +1,5 @@
 messages.json
 packets.txt
+logs
+backup
+*.geojson
